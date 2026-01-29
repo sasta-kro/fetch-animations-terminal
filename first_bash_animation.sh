@@ -6,7 +6,7 @@
 # If the user hits Ctrl+C, we want to show the cursor again before exiting.
 # `tput` stands for "terminal put". this 'tput cnorm' command restores the cursor
 trap 'tput cnorm; echo; exit' INT
-# this is like try/catch in Kotlin. `trap...INT` catches a Signal INTerrupt and executes the command.
+# this is like try/catch in Kotlin. `trap...INT` catches a Signal INTerrupt (just this, nothing else) and executes the command.
 
 # PREPARATION
 # 'tput civis' hides the cursor so it doesn't flicker during animation.
