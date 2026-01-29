@@ -532,7 +532,7 @@ while true; do
         # Prints the frame and fastfetch info. Newlines inside the string move the cursor down naturally.
         # no need for `-e` since there are no escape characters.
         # pipes frame into fastfetch and fastfetch handles the layout. 
-        echo -n "$frame" | fastfetch "--file-raw -"
+        echo -n "$frame" | fastfetch --file-raw -
         # fastfetch config ("-c ~/.config/fastfetch/config.jsonc") if exists
         # `--file-raw -`` tells fastfetch to read the logo from this program's pipe
         # `-` is for linux standard input (stdin) it grabs whatever the pipe sends
