@@ -12,9 +12,9 @@
 # Common numbers: 1=Red, 2=Green, 3=Yellow, 4=Blue, 5=Magenta, 6=Cyan, 7=White
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
-CYAN=$(tput setaf 6)
+# YELLOW=$(tput setaf 3)
+# BLUE=$(tput setaf 4)
+# CYAN=$(tput setaf 6)
 RESET=$(tput sgr0) # Resets color to default (or else the terminal might be coloured even after the program ends)
 
 # SETUP 

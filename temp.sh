@@ -25,7 +25,7 @@ RESET=$(tput sgr0)
 
 # Array of frames containing the ASCII art of Fedora logo.
 # The variable expansion requires quotes to preserve newlines and spacing.
-frames=(...)
+frames=()
 
 # to print when the animation ends
 # Since Mac's Bash doesn't understand [-1] array access notation, it has to be implemented manually
