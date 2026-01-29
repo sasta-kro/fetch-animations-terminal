@@ -19,9 +19,9 @@ WHITE=$(tput setaf 7)
 # (or else the terminal might be coloured even after the program ends)
 RESET=$(tput sgr0)
 
-# Trap executes cleanup commands when SIGINT (Ctrl+C) or TERM signals occur.
-# 'tput cnorm' restores the cursor visibility before exiting.
-trap 'tput cnorm; echo; exit' INT TERM
+# clear # clear here to just in case
+
+
 
 # Array of frames containing the ASCII art of Fedora logo.
 # The variable expansion requires quotes to preserve newlines and spacing.
@@ -44,7 +44,7 @@ cccccc;           ;cccccccccccccc:,
 cccccccc;       ;cccccccccccccc:,.
 ccccccccccccccccccccccccccccc:'.
 :ccccccccccccccccccccccc:;,..
- ':cccccccccccccccc::;,.${RESET}" 
+ ':cccccccccccccccc::;,.${RESET}"
 "${BLUE}             .',;::::;,'.
          .';:cccccccccccc:;,.
       .;cccccccccccccccccccccc;.
@@ -484,6 +484,14 @@ ccccccccccccccccccccccccccccc:'.
  ':cccccccccccccccc::;,.${RESET}"
 )
 
+# to print when the animation ends
+# Since Mac's Bash doesn't understand [-1] array access notation, it has to be implemented manually
+# This calculate the index of the last frame (Total count - 1)
+last_index=$((${#frames[@]} - 1))
+final_frame="${frames[last_index]}"
+# final_frame="${frames[-1]}" # modern bash
+
+
 # Clearing the screen (pervious texts in the terminal) provides a blank canvas for the animation
 clear
 
@@ -494,21 +502,66 @@ tput civis
 # `sc`` (Save Cursor) marks the current position (0,0 after clear) as the anchor point.
 tput sc
 
-# Iterates through the frames array.
-for frame in "${frames[@]}"; do
-    
-    # rc (Restore Cursor) moves the cursor back to the saved anchor point (top-left).
-    # This ensures the new frame overwrites the old frame exactly.
-    tput rc
+# Terminal input buffer is gonna be changed to process input immediately later with `stty`
+# `stty` = set tty (teletypewriter/terminal) which controls terminal driver settings.
+# `stty` -g prints the current terminal settings in a form suitable for reloading (a single string).
+# Save current settings so it can restored later
+old_stty=$(stty -g)
 
-    # Prints the frame. Newlines inside the string move the cursor down naturally.
-    # no need for `-e` since there are no escape characters
-    echo -n "$frame"
-    
-    # Pauses for 0.2 seconds. 0.001 is often too fast for the eye to register.
-    sleep 0.03
+# Disable 'Canonical Mode' (buffering) and Echo
+# -icanon : Send input immediately (don't wait for Enter)
+# time 0 min 0 : Make 'read' non-blocking (don't pause the script)
+# -echo : Don't show typed characters on screen
+stty -icanon time 0 min 0 -echo
+
+
+# Trap executes cleanup commands when SIGINT (Ctrl+C) or TERM signals occur.
+# 'tput cnorm' restores the cursor visibility before exiting.
+# `stty sane` = not a acronym, just a name of command to restore terminal to a 'sane' state
+trap 'tput cnorm; stty sane; echo; exit' INT TERM
+
+# the infinite loop
+while true; do
+    # Cycles through the frames array.
+    for frame in "${frames[@]}"; do
+        
+        # rc (Restore Cursor) moves the cursor back to the saved anchor point (top-left).
+        # This ensures the new frame overwrites the old frame exactly.
+        tput rc
+
+        # Prints the frame. Newlines inside the string move the cursor down naturally.
+        # no need for `-e` since there are no escape characters
+        echo -n "$frame"
+
+        sleep 0.05
+
+        # Because of the 'stty' above, standard 'read' becomes non-blocking
+        # It grabs a key if present, or moves on immediately if not
+        read key # doesn't have any delay or timeout
+        
+        # check if key exists (not empty), if 'key' is NOT empty (meaning something is typed)
+        if [[ -n "$key" ]]; then
+            break 2  # Break 'for' loop AND 'while' loop (2 levels)
+            # if just break then it will only break the inner loop and not the outer one
+        fi
+    done
 done
 
-# Restores the cursor visibility before the script ends naturally.
-tput cnorm
+# Cleanup after animation ends
+
+# Restore original terminal settings
+stty "$old_stty"
+
+# forces the final finished frame so it looks complete
+tput rc
+echo -n "$final_frame"
+
+# move cursor below the animation
 echo ""
+
+# restores the cursor visibility 
+tput cnorm
+
+
+# print the typed key to stop the program (optional)
+# echo "Stopped. Pressed: $key"
