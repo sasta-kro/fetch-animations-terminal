@@ -537,7 +537,7 @@ while true; do
         # `--file-raw -`` tells fastfetch to read the logo from this program's pipe
         # `-` is for linux standard input (stdin) it grabs whatever the pipe sends
 
-        sleep 0.05
+        sleep 0.02
 
         # Because of the 'stty' above, standard 'read' becomes non-blocking
         # It grabs a key if present, or moves on immediately if not

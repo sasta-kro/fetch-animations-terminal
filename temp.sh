@@ -25,7 +25,7 @@ RESET=$(tput sgr0)
 
 # Array of frames containing the ASCII art of Fedora logo.
 # The variable expansion requires quotes to preserve newlines and spacing.
-frames=()
+frames=(...)
 
 # to print when the animation ends
 # Since Mac's Bash doesn't understand [-1] array access notation, it has to be implemented manually
@@ -72,9 +72,13 @@ while true; do
         # This ensures the new frame overwrites the old frame exactly.
         tput rc
 
-        # Prints the frame. Newlines inside the string move the cursor down naturally.
-        # no need for `-e` since there are no escape characters
-        echo -n "$frame"
+        # Prints the frame and fastfetch info. Newlines inside the string move the cursor down naturally.
+        # no need for `-e` since there are no escape characters.
+        # pipes frame into fastfetch and fastfetch handles the layout. 
+        echo -n "$frame" | fastfetch "--file-raw -"
+        # fastfetch config ("-c ~/.config/fastfetch/config.jsonc") if exists
+        # `--file-raw -`` tells fastfetch to read the logo from this program's pipe
+        # `-` is for linux standard input (stdin) it grabs whatever the pipe sends
 
         sleep 0.05
 
@@ -97,7 +101,7 @@ stty "$old_stty"
 
 # forces the final finished frame so it looks complete
 tput rc
-echo -n "$final_frame"
+echo "$final_frame" | fastfetch --file-raw -
 
 # move cursor below the animation
 echo ""
